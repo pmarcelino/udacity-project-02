@@ -240,6 +240,25 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], True)
         self.assertTrue(data["question"] in possible_questions)  # TODO: stochastic, not cool!
         
+    def test_quiz_all_categories(self):
+        """Test quiz with all categories"""
+        # Given
+        previous_questions = []
+        quiz_category = {"id": 0, "type": "click"}
+        
+        data = {
+            "previous_questions": previous_questions,
+            "quiz_category": quiz_category
+        }
+        
+        # When
+        res = self.client().post("/quizzes", json=data)
+        data = json.loads(res.data)
+        
+        # Then
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data["success"], True)
+        
     def test_quiz_without_previous_questions(self):
         """Test that quiz works without previous questions"""
         # Given

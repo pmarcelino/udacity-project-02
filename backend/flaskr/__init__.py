@@ -238,10 +238,14 @@ def create_app(test_config=None):
             # if quiz_category not in categories:
             #     abort(404)
             
-            questions = Question.query.filter(Question.categories.has(type=quiz_category["type"])).all()
+            if quiz_category["id"] != 0:
+                questions = Question.query.filter(Question.categories.has(type=quiz_category["type"])).all()
+            else:
+                questions = Question.query.all()
+                
             questions = [question.format() for question in questions]
             possible_questions = [question for question in questions if question["id"] not in previous_questions]
-            
+                
             # if possible_questions == []:
             #     abort(422)
             
