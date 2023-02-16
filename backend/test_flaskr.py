@@ -57,15 +57,15 @@ class TriviaTestCase(unittest.TestCase):
         """Test it gets available categories"""
         # Given
         status_code = 200
-        categories = [
-            "Entertainment",
-            "Science",
-            "Sports",
-            "History",
-            "Geography",
-            "Art"
-            ]
-        total_categories = 16
+        categories = {
+            "1": "Science",
+            "2": "Art",
+            "3": "Geography",
+            "4": "History",
+            "5": "Entertainment",
+            "6": "Sports"
+        }
+        total_categories = 6
         
         # When
         res = self.client().get("/categories")
@@ -197,7 +197,7 @@ class TriviaTestCase(unittest.TestCase):
         total_questions = 3
         
         # When
-        res = self.client().get(f"/questions/{category}")
+        res = self.client().get(f"/categories/{category}/questions")
         data = json.loads(res.data)
         
         # Then
@@ -210,7 +210,7 @@ class TriviaTestCase(unittest.TestCase):
         """Test quiz"""
         # Given
         previous_questions = [5, 12]
-        quiz_category = 4
+        quiz_category = {"id": 4, "type": "History"}
         possible_questions = [
             {
                 "answer": "Muhammad Ali",
@@ -244,7 +244,7 @@ class TriviaTestCase(unittest.TestCase):
         """Test that quiz works without previous questions"""
         # Given
         previous_questions = []
-        quiz_category = 4
+        quiz_category = {"id": 4, "type": "History"}
         possible_questions = [
             {
                 "answer": "Maya Angelou",
@@ -282,7 +282,7 @@ class TriviaTestCase(unittest.TestCase):
         }
         
         # When
-        res = self.client().post("/quizzes", json = data)
+        res = self.client().post("/quizzes", json=data)
         data = json.loads(res.data)
         
         # Then
@@ -290,11 +290,11 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], True)
         self.assertTrue(data["question"] in possible_questions)  # TODO: stochastic, not cool!
 
-    def test_quiz_invalid_category(self):
+    def test_quiz_invalid_category(self):  # TODO: solve error not subscriptable
         """Test quiz fails when invalid category is given"""
         # Given
         previous_questions = []
-        quiz_category = 999999
+        quiz_category = {"id": 999999, "type": "Dragon Ball"}
         
         data = {
             "previous_questions": previous_questions,
@@ -305,7 +305,7 @@ class TriviaTestCase(unittest.TestCase):
         message = self.message_422
         
         # When
-        res = self.client().post("/quizzes", json = data)
+        res = self.client().post("/quizzes", json=data)
         data = json.loads(res.data)
         
         # Then
@@ -317,7 +317,7 @@ class TriviaTestCase(unittest.TestCase):
         """Test it can search questions given a search term"""
         # Given
         search_term = "title"
-        query_data = {"query": search_term}
+        query_data = {"searchTerm": search_term}
         
         total_questions = 2
         questions = [
@@ -338,7 +338,7 @@ class TriviaTestCase(unittest.TestCase):
         ]
         
         # When
-        res = self.client().post("/questions", data = query_data)
+        res = self.client().post("/questions", json=query_data)
         data = json.loads(res.data)
         
         # Then
