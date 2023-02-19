@@ -107,7 +107,7 @@ class TriviaTestCase(unittest.TestCase):
     #     self.assertEqual(data["success"], True)
     #     self.assertEqual(data["deleted_question"], question_id)
     
-    def test_delete_invalid_question_id(self):
+    def test_delete_question_invalid_id(self):
         """Test delete with an invalid question id"""
         # Given
         question_id = 999999999
@@ -166,22 +166,53 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["category"], category)
         self.assertEqual(data["difficulty"], difficulty)
         
-    # def test_post_question_fails_incomplete_data(self):
-    #     """Test post question fails if no data is provided"""
-    #     # Given
-    #     data = None
+    def test_post_question_fails_missing_question(self):
+        """Test post question fails when the question is missing"""
+        # Given
+        question = ""
+        answer = "Test answer"
+        category = 2
+        difficulty = 1
         
-    #     status_code = 422
-    #     message = self.message_422
+        data = {"question": question,
+                "answer": answer,
+                "category": category,
+                "difficulty": difficulty}
         
-    #     # When
-    #     res = self.client().post("/questions", json = data)
-    #     data = json.loads(res.data)
+        status_code = 404
         
-    #     # Then
-    #     self.assertEqual(res.status_code, status_code)
-    #     self.assertEqual(data["success"], False)
-    #     self.assertEqual(data["message"], message)
+        # When
+        res = self.client().post("/questions", json = data)
+        data = json.loads(res.data)
+        
+        # Then
+        self.assertEqual(res.status_code, status_code)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], self.message_404)
+    
+    def test_post_question_fails_missing_answer(self):
+        """Test post question fails when the answer is missing"""
+        # Given
+        question = "Test question"
+        answer = ""
+        category = 2
+        difficulty = 1
+        
+        data = {"question": question,
+                "answer": answer,
+                "category": category,
+                "difficulty": difficulty}
+        
+        status_code = 422
+        
+        # When
+        res = self.client().post("/questions", json = data)
+        data = json.loads(res.data)
+        
+        # Then
+        self.assertEqual(res.status_code, status_code)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], self.message_422)
         
     def test_get_category_questions(self):
         """Test get category questions"""
