@@ -19,40 +19,16 @@ class TriviaTestCase(unittest.TestCase):
             'SQLALCHEMY_TRACK_MODIFICATIONS': False
             }
         
-        # subprocess.call(["createdb", f"{self.database_name}"])
-        
         self.app = create_app(test_config)
         self.client = self.app.test_client
         
         self.message_404 = "resource not found"
         self.message_422 = "unprocessable"
         
-        # subprocess.call([f"psql {self.database_name} < trivia.psql"], shell=True)
-        
     def tearDown(self):
         """Executed after each test"""
-        # subprocess.call(["dropdb", f"{self.database_name}"])
         pass
 
-    """
-    TODO
-    Write at least one test for each test for successful operation and for expected errors.
-    """
-    def test_get_questions(self):
-        """Test it gets the questions"""
-        # Given
-        status_code = 200
-        
-        # When
-        res = self.client().get('/questions')
-        data = json.loads(res.data)
-
-        # Then
-        self.assertEqual(res.status_code, status_code)
-        self.assertEqual(data['success'], True)
-        self.assertTrue(data['questions'])
-        self.assertTrue(data['total_questions'])
-        
     def test_get_categories(self):
         """Test it gets available categories"""
         # Given
@@ -74,28 +50,47 @@ class TriviaTestCase(unittest.TestCase):
         # Then
         self.assertEqual(res.status_code, status_code)
         self.assertEqual(data["success"], True)
-        self.assertTrue(data["categories"])
+        self.assertEqual(data["categories"], categories)
         self.assertEqual(data["total_categories"], total_categories)
+    
+    def test_get_questions(self):
+        """Test it gets the questions"""
+        # Given
+        status_code = 200
         
-    # def test_get_categories_fails_404(self):
-    #     """Test it fails when no categories are found"""
-    #     # Given
-    #     status_code = 404
-    #     message = self.message_404
+        # When
+        res = self.client().get('/questions')
+        data = json.loads(res.data)
         
-    #     # When
-    #     res = self.client().get("/categories")
-    #     data = json.loads(res.data)
+        # Then
+        self.assertEqual(res.status_code, status_code)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['questions'])
+        self.assertTrue(data['total_questions'])
         
-    #     # Then
-    #     self.assertEqual(res.status_code, status_code)
-    #     self.assertEqual(data["success"], False)
-    #     self.assertEqual(data["message"], message)
+    def test_404_get_questions_invalid_page(self):
+        """Test it fails when an invalid page is given"""
+        # Given
+        page = 999999
+        status_code = 404
+        message = self.message_404
+        
+        # When
+        res = self.client().get(f"/questions?page={page}")
+        data = json.loads(res.data)
+        
+        # Then
+        self.assertEqual(res.status_code, status_code)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], message)
     
     # def test_delete_question(self):
-    #     """Test xxx"""
+    #     """Test delete question"""
     #     # Given
-    #     question_id = 1
+    #     res = self.client().get("/questions")
+    #     data = json.loads(res.data)
+    #     question_id = data["questions"][-1]["id"]  # Get the last question in the database
+        
     #     status_code = 200
         
     #     # When
@@ -107,10 +102,26 @@ class TriviaTestCase(unittest.TestCase):
     #     self.assertEqual(data["success"], True)
     #     self.assertEqual(data["deleted_question"], question_id)
     
-    def test_delete_question_invalid_id(self):
-        """Test delete with an invalid question id"""
+    def test_422_delete_question_invalid_id(self):
+        """Test if fails when deleting with an invalid question id"""
         # Given
         question_id = 999999999
+        status_code = 422
+        message = self.message_422
+        
+        # When
+        res = self.client().delete(f"/questions/{question_id}")
+        data = json.loads(res.data)
+        
+        # Then
+        self.assertEqual(res.status_code, status_code)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], message)
+        
+    def test_404_delete_question_empty_id(self):
+        """Test if fails when deleting without giving the id"""
+        # Given
+        question_id = None
         status_code = 404
         message = self.message_404
         
@@ -122,22 +133,6 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, status_code)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], message)
-    
-    # def test_delete_without_question_object(self):
-    #     """Test xxx"""
-    #     # Given
-    #     status_code = 422
-    #     message = self.message_422
-        
-    #     # When
-    #     res = self.client().delete(f"questions/{None}")
-    #     print(res)
-    #     data = json.loads(res)
-        
-    #     # Then
-    #     self.assertEqual(res.status_code, status_code)
-    #     self.assertEqual(data["success"], False)
-    #     self.assertEqual(data["message"], message)
     
     def test_post_question(self):
         """Test post question"""
@@ -152,7 +147,7 @@ class TriviaTestCase(unittest.TestCase):
                 "category": category,
                 "difficulty": difficulty}
         
-        status_code = 200  # TODO: it should be 201
+        status_code = 200
         
         # When
         res = self.client().post("/questions", json = data)
@@ -166,7 +161,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["category"], category)
         self.assertEqual(data["difficulty"], difficulty)
         
-    def test_post_question_fails_missing_question(self):
+    def test_422_post_question_fails_missing_question(self):
         """Test post question fails when the question is missing"""
         # Given
         question = ""
@@ -179,7 +174,8 @@ class TriviaTestCase(unittest.TestCase):
                 "category": category,
                 "difficulty": difficulty}
         
-        status_code = 404
+        status_code = 422
+        message = self.message_422
         
         # When
         res = self.client().post("/questions", json = data)
@@ -188,9 +184,9 @@ class TriviaTestCase(unittest.TestCase):
         # Then
         self.assertEqual(res.status_code, status_code)
         self.assertEqual(data["success"], False)
-        self.assertEqual(data["message"], self.message_404)
+        self.assertEqual(data["message"], message)
     
-    def test_post_question_fails_missing_answer(self):
+    def test_422_post_question_fails_missing_answer(self):
         """Test post question fails when the answer is missing"""
         # Given
         question = "Test question"
@@ -204,6 +200,7 @@ class TriviaTestCase(unittest.TestCase):
                 "difficulty": difficulty}
         
         status_code = 422
+        message = self.message_422
         
         # When
         res = self.client().post("/questions", json = data)
@@ -212,7 +209,7 @@ class TriviaTestCase(unittest.TestCase):
         # Then
         self.assertEqual(res.status_code, status_code)
         self.assertEqual(data["success"], False)
-        self.assertEqual(data["message"], self.message_422)
+        self.assertEqual(data["message"], message)
         
     def test_get_category_questions(self):
         """Test get category questions"""
@@ -269,7 +266,7 @@ class TriviaTestCase(unittest.TestCase):
         # Then
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
-        self.assertTrue(data["question"] in possible_questions)  # TODO: stochastic, not cool!
+        self.assertTrue(data["question"] in possible_questions)
         
     def test_quiz_all_categories(self):
         """Test quiz with all categories"""
@@ -291,7 +288,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], True)
         
     def test_quiz_without_previous_questions(self):
-        """Test that quiz works without previous questions"""
+        """Test that quiz works when previous questions are empty"""
         # Given
         previous_questions = []
         quiz_category = {"id": 4, "type": "History"}
@@ -338,9 +335,9 @@ class TriviaTestCase(unittest.TestCase):
         # Then
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
-        self.assertTrue(data["question"] in possible_questions)  # TODO: stochastic, not cool!
+        self.assertTrue(data["question"] in possible_questions)
 
-    def test_quiz_invalid_category(self):  # TODO: solve error not subscriptable
+    def test_quiz_invalid_category(self):
         """Test quiz fails when invalid category is given"""
         # Given
         previous_questions = []
@@ -351,7 +348,7 @@ class TriviaTestCase(unittest.TestCase):
             "quiz_category": quiz_category
         }
         
-        status_code = 422  # TODO: check if it should be 404
+        status_code = 422
         message = self.message_422
         
         # When
