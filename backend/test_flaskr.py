@@ -1,11 +1,6 @@
-import os
-import subprocess
 import unittest
 import json
-from flask_sqlalchemy import SQLAlchemy
-
 from flaskr import create_app
-from models import setup_db, Question, Category
 
 class TriviaTestCase(unittest.TestCase):
     """This class represents the trivia test case"""
@@ -84,23 +79,23 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], message)
     
-    # def test_delete_question(self):
-    #     """Test delete question"""
-    #     # Given
-    #     res = self.client().get("/questions")
-    #     data = json.loads(res.data)
-    #     question_id = data["questions"][-1]["id"]  # Get the last question in the database
+    def test_delete_question(self):
+        """Test delete question"""
+        # Given
+        res = self.client().get("/questions")
+        data = json.loads(res.data)
+        question_id = data["questions"][-1]["id"]  # Get the last question in the database
         
-    #     status_code = 200
+        status_code = 200
         
-    #     # When
-    #     res = self.client().delete(f"/questions/{question_id}")
-    #     data = json.loads(res.data)
+        # When
+        res = self.client().delete(f"/questions/{question_id}")
+        data = json.loads(res.data)
         
-    #     # Then
-    #     self.assertEqual(res.status_code, 200)
-    #     self.assertEqual(data["success"], True)
-    #     self.assertEqual(data["deleted_question"], question_id)
+        # Then
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data["success"], True)
+        self.assertEqual(data["deleted_question"], question_id)
     
     def test_404_delete_question_invalid_id(self):
         """Test delete question fails the question id is invalid"""

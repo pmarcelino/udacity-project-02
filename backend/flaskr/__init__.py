@@ -1,6 +1,4 @@
 import random
-import sys
-
 from flask import Flask, request, abort, jsonify
 from flask_cors import CORS
 from models import setup_db, Question, Category, db
@@ -52,7 +50,7 @@ def create_app(test_config=None):
     """Create Flask app.
 
     Args:
-        test_config (dict): Development environment configurations.
+        test_config (dict): Configurations of the development environment.
 
     Returns:
         app (Flask): Flask app.
@@ -85,7 +83,6 @@ def create_app(test_config=None):
         categories_dict = build_categories_dict()  
         
         if len(categories_dict) == 0:
-            # print(sys.exc_info())
             abort(404)
         
         return jsonify({"success": True, 
@@ -100,7 +97,6 @@ def create_app(test_config=None):
         current_questions = paginate_questions(request, questions)
         
         if current_questions == []:
-            # print(sys.exc_info())
             abort(404)
         
         categories_dict = build_categories_dict()
@@ -118,13 +114,11 @@ def create_app(test_config=None):
         question = Question.query.filter_by(id=question_id).one_or_none()
         
         if question is None:
-            # print(sys.exc_info())
             abort(404)
         
         try:
             question.delete()
         except:
-            # print(sys.exc_info())
             db.session.rollback()
             abort(500)
         finally:
@@ -156,7 +150,6 @@ def create_app(test_config=None):
         difficulty = body.get("difficulty", None)
         
         if "" in (question, answer):
-            # print(sys.exc_info())
             abort(422)
         
         try:
@@ -164,7 +157,6 @@ def create_app(test_config=None):
             question_obj.insert()
             
         except:
-            # print(sys.exc_info())
             db.session.rollback()
             abort(500)
         finally:
@@ -215,7 +207,6 @@ def create_app(test_config=None):
         possible_questions = [question for question in questions if question["id"] not in previous_questions]
         
         if len(possible_questions) == 0:
-            # print(sys.exc_info())
             abort(404)
             
         question = random.choice(possible_questions)
