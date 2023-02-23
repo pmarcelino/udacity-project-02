@@ -29,7 +29,7 @@ flask run
 
 These commands put the application in development and directs our application to use the `__init__.py` file in our flaskr folder. Working in debug mode shows an interactive debugger in the console and restarts the server whenever changes are made. If running locally on Windows, look for the commands in the [Flask documentation](http://flask.pocoo.org/docs/1.0/tutorial/factory/).
 
-The application is run on `http://127.0.0.1:5000/` by default and is a proxy in the frontend configuration.
+The application will run on `http://127.0.0.1:5000/` by default and is a proxy in the frontend configuration.
 
 > View the [Backend README](./backend/README.md) for more details.
 
@@ -41,7 +41,7 @@ npm install // only once to install dependencies
 npm start 
 ```
 
-By default, the frontend will run on localhost:3000. 
+The frontend will run on `http://127.0.0.1:3000/` by default.
 
 > View the [Frontend README](./frontend/README.md) for more details.
 
@@ -70,12 +70,13 @@ All tests are kept in that file and should be maintained as updates are made to 
 
 - This endpoint retrieves a list of all available categories.
 - Response:
-  - success: True if the request was successful, False otherwise.
   - categories: A dictionary of categories, with the ID as the key and the type of category as the value.
+  - success: True if the request was successful, False otherwise.
   - total_categories: The total number of available categories.
 - Sample: `curl http://127.0.0.1:5000/categories`
 
-``` {
+``` 
+{
     "categories": {
     "1": "Science",
     "2": "Art",
@@ -89,20 +90,22 @@ All tests are kept in that file and should be maintained as updates are made to 
 }
 ```
 
-#### GET /questions?page=${integer}
+#### GET /questions?page=${page}
 
-- This endpoint gets all questions from the database and paginates them.
+- This endpoint gets all questions from the database and paginates them. A default of 10 questions per page is considered.
 - Requested arguments:
   - page: Integer that represents the page number.
 - Response:
-  - success: True if the request was successful, False otherwise.
-  - questions: A list of questions for the current page.
-  - total_questions: The total number of available questions.
-  - current_category: The ID of the current category.
   - categories: A dictionary of categories, with the ID as the key and the type of category as the value.
+  - current_category: The ID of the current category.
+  - questions: A list of questions for the current page.
+  - success: True if the request was successful, False otherwise.
+  - total_questions: The total number of available questions.
+  
 - Sample: `curl http://127.0.0.1:5000/questions?page=1`
 
-``` {
+``` 
+{
     "categories": {
     "1": "Science",
     "2": "Art",
@@ -129,20 +132,21 @@ All tests are kept in that file and should be maintained as updates are made to 
     }
   ],
   "success": true,
-  "total_questions": 18
+  "total_questions": 2
 }
 ```
-#### DELETE /questions/<int:question_id>
+#### DELETE /questions/<<int:question_id>>
 
 - This endpoint deletes a question identified by its ID.
 - Requested arguments:
   - question_id: The ID of the question to delete.
 - Response:
-  - success: True if the request was successful, False otherwise.
   - deleted_question: The ID of the deleted question.
+  - success: True if the request was successful, False otherwise.
 - Sample: `curl -X DELETE http://127.0.0.1:5000/questions/2`
 
-``` {
+``` 
+{
   "deleted_question": 2,
   "success": true
 }
@@ -207,19 +211,21 @@ All tests are kept in that file and should be maintained as updates are made to 
   "total_questions": 2
 }
 ```
-#### GET /categories/<int:category>/questions
+#### GET /categories/<<int:category>>/questions
 
 - This endpoint gets questions in a specific category.
 - Requested arguments:
   - category: The ID of the category in relation to which we want the questions.
 - Response:
-  - success: True if the request was successful, False otherwise.
-  - questions: A list of questions in the specified category.
-  - total_questions: The total number of questions in the specified category.
   - current_category: The ID of the current category.
+  - questions: A list of questions in the specified category.
+  - success: True if the request was successful, False otherwise.
+  - total_questions: The total number of questions in the specified category.
+  
 - Sample: `curl http://127.0.0.1:5000/categories/1/questions`
 
-``` {
+``` 
+{
   "current_category": 1,
   "questions": [
     {
@@ -257,7 +263,8 @@ All tests are kept in that file and should be maintained as updates are made to 
 - Response:
   - success: True if the request was successful, False otherwise.
   - question: A randomly selected question for the quiz.
-`curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"previous_questions":[],"quiz_category":{"type":"History","id":"4"}}'`
+- Sample: `curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"previous_questions":[],"quiz_category":{"type":"History","id":"4"}}'`
+
 ```
 {
   "question": {
@@ -281,7 +288,7 @@ Errors are returned as JSON objects in the following format:
 ```
 {
     "success": False, 
-    "error": 400,
-    "message": "bad request"
+    "error": 404,
+    "message": "resource not found"
 }
 ```
