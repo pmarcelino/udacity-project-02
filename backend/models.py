@@ -8,16 +8,20 @@ setup_db(app)
     binds a flask application and a SQLAlchemy service
 """
 
+
 def setup_db(app):
     db.app = app
     db.init_app(app)
     with app.app_context():
         db.create_all()
 
+
 """
 Question
 
 """
+
+
 class Question(db.Model):
     __tablename__ = 'questions'
 
@@ -51,12 +55,15 @@ class Question(db.Model):
             'answer': self.answer,
             'category': self.category,
             'difficulty': self.difficulty
-            }
+        }
+
 
 """
 Category
 
 """
+
+
 class Category(db.Model):
     __tablename__ = 'categories'
 
@@ -71,4 +78,4 @@ class Category(db.Model):
         return {
             'id': self.id,
             'type': self.type
-            }
+        }
