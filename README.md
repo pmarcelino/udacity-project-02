@@ -262,7 +262,7 @@ All tests are kept in that file and should be maintained as updates are made to 
   - quiz_category: The category of the quiz.
 - Response:
   - success: True if the request was successful, False otherwise.
-  - question: A randomly selected question for the quiz.
+  - question: A randomly selected question for the quiz or None if there are no further questions.
 - Sample: `curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"previous_questions":[],"quiz_category":{"type":"History","id":"4"}}'`
 
 ```
